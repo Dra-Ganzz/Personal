@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vindra Ganzz — Python Engineer</title>
+<meta name="description" content="Portfolio Python Engineer — Vindra Ganzz. Scripting, otomasi & pengolahan data dengan Python." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============ RESET & VARIABEL ============ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root{
+  --bg:        #05060a;
+  --bg-soft:   #0b0e17;
+  --card:      #0f1320;
+  --line:      rgba(255,255,255,.08);
+  --text:      #e8ecf4;
+  --muted:     #8b93a7;
+  --cyan:      #00e5ff;
+  --purple:    #a855f7;
+  --grad:      linear-gradient(135deg, #00e5ff 0%, #a855f7 100%);
+  --radius:    18px;
+  --ease:      cubic-bezier(.16,1,.3,1);
+}
+
+html{ scroll-behavior: smooth; }
+
+body{
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.loading{ overflow: hidden; }
+::selection{ background: var(--purple); color: #fff; }
+
+::-webkit-scrollbar{ width: 9px; }
+::-webkit-scrollbar-track{ background: var(--bg); }
+::-webkit-scrollbar-thumb{
+  background: linear-gradient(var(--cyan), var(--purple));
+  border-radius: 10px;
+}
+
+/* ============ PRELOADER ============ */
+#preloader{
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 32px;
+  transition: opacity .8s var(--ease), visibility .8s;
+}
+#preloader.done{ opacity: 0; visibility: hidden; }
+
+.loader-letters{ display: flex; gap: 4px; }
+.loader-letters span{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.4rem, 5vw, 2.4rem);
+  font-weight: 700; letter-spacing: .12em;
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; opacity: 0;
+  transform: translateY(28px) rotateX(-90deg);
+  animation: letterIn .7s var(--ease) forwards;
+}
+@keyframes letterIn{ to{ opacity: 1; transform: translateY(0) rotateX(0); } }
+
+.loader-bar{
+  width: min(240px, 55vw); height: 3px;
+  background: rgba(255,255,255,.1);
+  border-radius: 10px; overflow: hidden;
+}
+.loader-bar-fill{
+  height: 100%; width: 0%;
+  background: var(--grad);
+  border-radius: 10px;
+  transition: width .3s linear;
+}
+.loader-pct{
+  font-size: .72rem; letter-spacing: .3em;
+  color: var(--muted); text-transform: uppercase;
+}
+
+/* ============ PARTIKEL & CURSOR ============ */
+#particles{
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; opacity: .55;
+}
+.cursor, .cursor-dot{
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9000;
+  border-radius: 50%; mix-blend-mode: screen;
+}
+.cursor{
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(0,229,255,.7);
+  transition: width .25s var(--ease), height .25s var(--ease),
+              background .25s, border-color .25s;
+}
+.cursor.grow{
+  width: 62px; height: 62px;
+  background: rgba(168,85,247,.16);
+  border-color: rgba(168,85,247,.9);
+}
+.cursor-dot{
+  width: 5px; height: 5px;
+  background: var(--cyan);
+}
+
+/* ============ SCROLL PROGRESS ============ */
+#scroll-progress{
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: var(--grad); z-index: 800;
+  box-shadow: 0 0 14px rgba(0,229,255,.6);
+}
+
+/* ============ NAVBAR ============ */
+nav{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 700;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px clamp(20px, 5vw, 72px);
+  transition: background .4s, padding .4s, backdrop-filter .4s, border-color .4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled{
+  background: rgba(5,6,10,.72);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  padding-top: 14px; padding-bottom: 14px;
+  border-bottom-color: var(--line);
+}
+.logo{
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 1.2rem; letter-spacing: -.02em;
+  color: var(--text); text-decoration: none;
+  display: flex; align-items: center; gap: 9px;
+}
+.logo-mark{
+  width: 30px; height: 30px; border-radius: 9px;
+  background: var(--grad);
+  display: grid; place-items: center;
+  font-size: .85rem; color: #04060c; font-weight: 700;
+  box-shadow: 0 0 22px rgba(0,229,255,.4);
+}
+.nav-links{ display: flex; gap: 6px; list-style: none; align-items: center; }
+.nav-links a{
+  position: relative;
+  color: var(--muted); text-decoration: none;
+  font-size: .9rem; font-weight: 500;
+  padding: 9px 16px; border-radius: 10px;
+  transition: color .3s, background .3s;
+}
+.nav-links a:hover{ color: var(--text); background: rgba(255,255,255,.05); }
+.nav-links a::after{
+  content:''; position: absolute; bottom: 3px; left: 50%;
+  width: 0; height: 2px; border-radius: 2px;
+  background: var(--grad); transform: translateX(-50%);
+  transition: width .35s var(--ease);
+}
+.nav-links a:hover::after{ width: 40%; }
+.nav-cta{
+  padding: 10px 22px !important;
+  border: 1px solid var(--line);
+  border-radius: 100px !important;
+  color: var(--text) !important;
+  transition: all .35s var(--ease);
+}
+.nav-cta:hover{
+  background: var(--grad) !important;
+  color: #04060c !important;
+  border-color: transparent;
+  box-shadow: 0 8px 30px rgba(0,229,255,.3);
+}
+.nav-cta::after{ display: none; }
+
+.burger{
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: none; cursor: pointer; padding: 8px; z-index: 750;
+}
+.burger span{
+  width: 24px; height: 2px; background: var(--text);
+  border-radius: 2px; transition: .35s var(--ease);
+}
+.burger.open span:nth-child(1){ transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2){ opacity: 0; }
+.burger.open span:nth-child(3){ transform: translateY(-7px) rotate(-45deg); }
+
+/* ============ LAYOUT UMUM ============ */
+section{
+  position: relative; z-index: 2;
+  padding: clamp(80px, 12vw, 140px) clamp(20px, 5vw, 72px);
+  max-width: 1200px; margin: 0 auto;
+}
+.section-tag{
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .74rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--cyan); font-weight: 600; margin-bottom: 16px;
+}
+.section-tag::before{
+  content:''; width: 26px; height: 1px;
+  background: var(--grad);
+}
+h2.section-title{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.9rem, 4.2vw, 3rem);
+  font-weight: 700; line-height: 1.15; letter-spacing: -.03em;
+  margin-bottom: 18px;
+}
+.grad-text{
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+
+/* ============ HERO ============ */
+#hero{
+  min-height: 100svh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding-top: 130px; padding-bottom: 80px;
+  max-width: 1200px;
+}
+.blob{
+  position: absolute; border-radius: 50%;
+  filter: blur(110px); opacity: .34; z-index: -1;
+  pointer-events: none;
+}
+.blob-1{
+  width: 480px; height: 480px;
+  background: #00e5ff; top: -120px; right: -120px;
+  animation: float 14s ease-in-out infinite;
+}
+.blob-2{
+  width: 420px; height: 420px;
+  background: #a855f7; bottom: -140px; left: -100px;
+  animation: float 18s ease-in-out infinite reverse;
+}
+@keyframes float{
+  0%,100%{ transform: translate(0,0) scale(1); }
+  50%{ transform: translate(-40px, 50px) scale(1.12); }
+}
+
+.hero-badge{
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 7px 16px 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: .8rem; color: var(--muted);
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
+  width: fit-content; margin-bottom: 26px;
+}
+.pulse-dot{
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #22c55e; position: relative;
+}
+.pulse-dot::after{
+  content:''; position: absolute; inset: 0; border-radius: 50%;
+  background: #22c55e; animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse{
+  0%{ transform: scale(1); opacity: .8; }
+  100%{ transform: scale(3); opacity: 0; }
+}
+
+.hero-greet{
+  font-size: clamp(.95rem, 1.6vw, 1.1rem);
+  color: var(--muted); margin-bottom: 10px;
+  letter-spacing: .04em;
+}
+h1.hero-name{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.6rem, 8.5vw, 5.6rem);
+  font-weight: 700; line-height: 1.02;
+  letter-spacing: -.045em;
+  margin-bottom: 18px;
+}
+h1.hero-name .line{ display: block; overflow: hidden; }
+h1.hero-name .line > span{
+  display: block;
+  transform: translateY(110%);
+  animation: riseUp 1s var(--ease) forwards;
+}
+h1.hero-name .line:nth-child(2) > span{ animation-delay: .12s; }
+@keyframes riseUp{ to{ transform: translateY(0); } }
+
+.hero-role{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.05rem, 2.6vw, 1.6rem);
+  color: var(--muted); font-weight: 500;
+  margin-bottom: 26px; min-height: 1.7em;
+}
+.hero-role .typed{ color: var(--cyan); }
+.caret{
+  display: inline-block; width: 2px; height: 1em;
+  background: var(--purple); vertical-align: -.12em;
+  margin-left: 3px; animation: blink .9s step-end infinite;
+}
+@keyframes blink{ 50%{ opacity: 0; } }
+
+.hero-desc{
+  max-width: 580px; color: var(--muted);
+  font-size: clamp(.92rem, 1.4vw, 1rem);
+  margin-bottom: 40px;
+}
+.hero-actions{ display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 52px; }
+
+.btn{
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 14px 30px; border-radius: 100px;
+  font-size: .92rem; font-weight: 600; text-decoration: none;
+  border: 1px solid transparent; cursor: pointer;
+  transition: all .35s var(--ease);
+  font-family: inherit;
+}
+.btn-primary{
+  background: var(--grad); color: #04060c;
+  box-shadow: 0 10px 34px rgba(0,229,255,.26);
+}
+.btn-primary:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 16px 44px rgba(168,85,247,.42);
+}
+.btn-ghost{
+  border-color: var(--line); color: var(--text);
+  background: rgba(255,255,255,.03);
+}
+.btn-ghost:hover{
+  border-color: var(--cyan);
+  background: rgba(0,229,255,.08);
+  transform: translateY(-3px);
+}
+
+.hero-socials{ display: flex; gap: 12px; }
+.social-btn{
+  width: 44px; height: 44px; border-radius: 13px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  color: var(--muted); text-decoration: none;
+  transition: all .3s var(--ease);
+}
+.social-btn:hover{
+  color: var(--bg); background: var(--grad);
+  border-color: transparent; transform: translateY(-4px);
+}
+.social-btn svg{ width: 19px; height: 19px; }
+
+.scroll-hint{
+  position: absolute; bottom: 34px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  color: var(--muted); font-size: .66rem;
+  letter-spacing: .26em; text-transform: uppercase;
+  opacity: 0; animation: fadeIn 1s 1.6s var(--ease) forwards;
+}
+@keyframes fadeIn{ to{ opacity: 1; } }
+.mouse{
+  width: 22px; height: 36px; border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,.25);
+  position: relative;
+}
+.mouse::after{
+  content:''; position: absolute; top: 7px; left: 50%;
+  width: 3px; height: 7px; border-radius: 2px;
+  background: var(--cyan); transform: translateX(-50%);
+  animation: wheel 1.6s ease-in-out infinite;
+}
+@keyframes wheel{
+  0%{ opacity: 0; transform: translate(-50%, 0); }
+  40%{ opacity: 1; }
+  100%{ opacity: 0; transform: translate(-50%, 13px); }
+}
+
+/* ============ ABOUT ============ */
+.about-grid{
+  display: grid; grid-template-columns: 1fr 1.15fr;
+  gap: clamp(32px, 6vw, 76px); align-items: center;
+}
+.about-visual{
+  position: relative; aspect-ratio: 1/1.05;
+  border-radius: 24px; overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(0,229,255,.24), transparent 55%),
+    radial-gradient(circle at 75% 80%, rgba(168,85,247,.26), transparent 55%),
+    var(--card);
+  display: grid; place-items: center;
+}
+
+/* Blok kode (animasi) */
+.code-block{
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: clamp(.78rem, 1.35vw, .95rem);
+  line-height: 1.95;
+  color: var(--text);
+  padding: 30px 26px;
+  z-index: 2; position: relative;
+  white-space: pre;
+  overflow: auto;
+  width: 100%;
+  margin: 0;
+}
+.code-block code{ white-space: pre; }
+.code-block .kw { color: #c792ea; }
+.code-block .fn { color: #82aaff; }
+.code-block .str { color: #c3e88d; }
+.code-block .cm { color: #6b7394; font-style: italic; }
+
+.code-caret{
+  display: inline-block;
+  width: 8px; height: 1.05em;
+  background: var(--cyan);
+  vertical-align: -0.16em;
+  margin-left: 2px;
+  animation: caretBlink 1s step-end infinite;
+  box-shadow: 0 0 10px rgba(0,229,255,.7);
+}
+@keyframes caretBlink{ 50%{ opacity: 0; } }
+
+.about-text p{ color: var(--muted); margin-bottom: 18px; font-size: .97rem; }
+.about-text p strong{ color: var(--text); font-weight: 600; }
+.about-list{
+  list-style: none; display: grid; gap: 12px; margin-top: 26px;
+}
+.about-list li{
+  display: flex; align-items: flex-start; gap: 11px;
+  color: var(--muted); font-size: .93rem;
+}
+.about-list li::before{
+  content: '▹'; color: var(--cyan); font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* ============ SKILLS (SINGLE — PYTHON) ============ */
+.skills-head{ margin-bottom: 46px; text-align: center; }
+.skills-head .section-tag{ justify-content: center; }
+.skills-single{ max-width: 640px; margin: 0 auto; }
+
+.skill-card{
+  position: relative; padding: 40px 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+  overflow: hidden;
+  transition: transform .45s var(--ease), border-color .45s, box-shadow .45s;
+}
+.skill-card::before{
+  content:''; position: absolute; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: var(--grad);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .55s var(--ease);
+}
+.skill-card:hover{
+  transform: translateY(-7px);
+  border-color: rgba(0,229,255,.35);
+  box-shadow: 0 22px 50px rgba(0,0,0,.5);
+}
+.skill-card:hover::before{ transform: scaleX(1); }
+
+.skill-icon{
+  width: 60px; height: 60px; border-radius: 16px;
+  display: grid; place-items: center;
+  background: rgba(0,229,255,.1);
+  border: 1px solid rgba(0,229,255,.22);
+  font-size: 1.8rem; margin-bottom: 20px;
+}
+.skill-card h3{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem; margin-bottom: 12px; font-weight: 700;
+  letter-spacing: -.02em;
+}
+.skill-card p{
+  font-size: .95rem; color: var(--muted);
+  line-height: 1.7; margin-bottom: 22px;
+}
+.skill-tags{ display: flex; flex-wrap: wrap; gap: 8px; }
+.tag{
+  font-size: .7rem; padding: 5px 12px; border-radius: 100px;
+  background: rgba(0,229,255,.09);
+  border: 1px solid rgba(0,229,255,.22);
+  color: var(--cyan); letter-spacing: .04em;
+}
+
+/* ============ PROJECTS ============ */
+.projects-grid{
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px; margin-top: 46px;
+}
+.project-card{
+  position: relative; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--card);
+  transition: transform .5s var(--ease), border-color .5s, box-shadow .5s;
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column;
+}
+.project-card:hover{
+  transform: translateY(-9px);
+  border-color: rgba(168,85,247,.4);
+  box-shadow: 0 26px 60px rgba(0,0,0,.55);
+}
+.project-thumb{
+  height: 190px; position: relative; overflow: hidden;
+  background: #0a0d15;
+}
+.project-thumb img{
+  width: 100%; height: 100%; object-fit: cover;
+  display: block;
+  transition: transform .7s var(--ease), filter .5s;
+  filter: saturate(.9);
+}
+.project-card:hover .project-thumb img{
+  transform: scale(1.08);
+  filter: saturate(1.1);
+}
+.project-thumb::after{
+  content:''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(15,19,32,.9));
+  pointer-events: none;
+}
+.project-body{
+  padding: 24px 24px 28px; flex: 1; display: flex; flex-direction: column;
+}
+.project-tags{
+  display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 13px;
+}
+.project-card h3{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.14rem; margin-bottom: 9px; font-weight: 600;
+}
+.project-card p{
+  font-size: .88rem; color: var(--muted); flex: 1; margin-bottom: 18px;
+}
+.project-link{
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .84rem; font-weight: 600; color: var(--cyan);
+  transition: gap .3s var(--ease);
+}
+.project-card:hover .project-link{ gap: 13px; }
+
+/* ============ CONTACT ============ */
+.contact-box{
+  position: relative; overflow: hidden;
+  border-radius: 26px; border: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(0,229,255,.15), transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(168,85,247,.17), transparent 55%),
+    var(--bg-soft);
+  padding: clamp(38px, 6vw, 70px);
+  text-align: center;
+}
+.contact-box h2{ margin-bottom: 14px; }
+.contact-box > p{
+  color: var(--muted); max-width: 500px;
+  margin: 0 auto 34px; font-size: .96rem;
+}
+.contact-actions{
+  display: flex; flex-wrap: wrap; gap: 14px; justify-content: center;
+}
+.contact-mail{
+  display: inline-block; margin-top: 30px;
+  color: var(--muted); font-size: .86rem; text-decoration: none;
+  border-bottom: 1px dashed var(--line); padding-bottom: 3px;
+  transition: color .3s, border-color .3s;
+}
+.contact-mail:hover{ color: var(--cyan); border-color: var(--cyan); }
+
+/* ============ FOOTER ============ */
+footer{
+  position: relative; z-index: 2;
+  padding: 34px clamp(20px, 5vw, 72px);
+  border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 14px;
+  align-items: center; justify-content: space-between;
+  font-size: .83rem; color: var(--muted);
+  max-width: 1200px; margin: 0 auto;
+}
+footer a{ color: var(--muted); text-decoration: none; transition: color .3s; }
+footer a:hover{ color: var(--cyan); }
+
+/* ============ REVEAL ============ */
+.reveal{
+  opacity: 0; transform: translateY(34px);
+  transition: opacity .9s var(--ease), transform .9s var(--ease);
+}
+.reveal.visible{ opacity: 1; transform: translateY(0); }
+.reveal.d1{ transition-delay: .09s; }
+.reveal.d2{ transition-delay: .18s; }
+.reveal.d3{ transition-delay: .27s; }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px){
+  .about-grid{ grid-template-columns: 1fr; }
+  .about-visual{ max-width: 420px; margin: 0 auto; }
+  .cursor, .cursor-dot{ display: none; }
+}
+@media (max-width: 768px){
+  .burger{ display: flex; }
+  .nav-links{
+    position: fixed; inset: 0 0 auto 0;
+    flex-direction: column; gap: 4px;
+    background: rgba(5,6,10,.96);
+    backdrop-filter: blur(24px);
+    padding: 100px 26px 40px;
+    transform: translateY(-100%);
+    transition: transform .55s var(--ease);
+    border-bottom: 1px solid var(--line);
+    align-items: stretch;
+  }
+  .nav-links.open{ transform: translateY(0); }
+  .nav-links a{
+    font-size: 1.02rem; padding: 14px 16px;
+    border-radius: 12px;
+  }
+  .nav-links a::after{ display: none; }
+  .nav-cta{ text-align: center; margin-top: 10px; }
+
+  .scroll-hint{ display: none; }
+  #hero{ padding-top: 120px; }
+  .blob{ filter: blur(80px); opacity: .26; }
+}
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+<body class="loading">
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="loader-letters">
+    <span style="animation-delay:.00s">P</span>
+    <span style="animation-delay:.06s">Y</span>
+    <span style="animation-delay:.12s">T</span>
+    <span style="animation-delay:.18s">H</span>
+    <span style="animation-delay:.24s">O</span>
+    <span style="animation-delay:.30s">N</span>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-fill" id="loaderFill"></div></div>
+  <div class="loader-pct" id="loaderPct">0%</div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"></div>
+
+<!-- PARTIKEL -->
+<canvas id="particles"></canvas>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#hero" class="logo">
+    <span class="logo-mark">V</span>
+    Vindra<span style="color:var(--cyan)">.</span>
+  </a>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">Tentang</a></li>
+    <li><a href="#skills">Skill</a></li>
+    <li><a href="#projects">Proyek</a></li>
+    <li><a href="#contact" class="nav-cta">Hubungi Saya</a></li>
+  </ul>
+
+  <button class="burger" id="burger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="hero-badge">
+    <span class="pulse-dot"></span>
+    Tersedia untuk proyek Python freelance
+  </div>
+
+  <p class="hero-greet">Halo, saya</p>
+
+  <h1 class="hero-name">
+    <span class="line"><span>Vindra Ganzz</span></span>
+    <span class="line"><span class="grad-text">Python Engineer</span></span>
+  </h1>
+
+  <p class="hero-role">
+    Saya membangun <span class="typed" id="typed"></span><span class="caret"></span>
+  </p>
+
+  <p class="hero-desc">
+    Fokus pada Python untuk scripting, otomasi, dan pengolahan data.
+    Kode yang bersih, solusi yang benar-benar menyelesaikan masalah —
+    bukan sekadar jalan.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#projects" class="btn btn-primary">
+      Lihat Proyek
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a href="#contact" class="btn btn-ghost">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m4 6 8 6 8-6"/></svg>
+      Kontak
+    </a>
+  </div>
+
+  <div class="hero-socials">
+    <a href="https://github.com" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.7 4.7 18.7 5 18.7 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+    </a>
+    <a href="https://linkedin.com" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.08 1.4-2.08 2.85V21H9z"/></svg>
+    </a>
+    <a href="https://pypi.org" target="_blank" rel="noopener" class="social-btn" aria-label="PyPI">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C7 2 7.2 4.2 7.2 4.2v2.3h4.9v.7H5.3S2 6.9 2 12s2.9 5 2.9 5h1.7v-2.4s-.1-2.9 2.9-2.9h4.9s2.8 0 2.8-2.7V4.6S17.7 2 12 2zm-2.7 1.6a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8zM12 22c5 0 4.8-2.2 4.8-2.2v-2.3h-4.9v-.7h6.8S22 17.1 22 12s-2.9-5-2.9-5h-1.7v2.4s.1 2.9-2.9 2.9H9.6S6.8 12.3 6.8 15v4.4S6.3 22 12 22zm2.7-1.6a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/></svg>
+    </a>
+    <a href="mailto:hello@vindragnz.dev" class="social-btn" aria-label="Email">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="m3 6.5 9 6.5 9-6.5"/></svg>
+    </a>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="mouse"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-visual reveal">
+      <!-- Blok kode animasi (diisi oleh JS) -->
+      <pre class="code-block"><code id="codeOutput"></code><span class="code-caret" id="codeCaret"></span></pre>
+    </div>
+
+    <div class="about-text">
+      <div class="section-tag reveal">Tentang Saya</div>
+      <h2 class="section-title reveal d1">
+        Menulis Python dengan<br>
+        <span class="grad-text">tujuan, bukan asal</span>
+      </h2>
+      <p class="reveal d2">
+        Saya <strong>Vindra Ganzz</strong>, seorang <strong>Python Engineer</strong>
+        yang berfokus pada scripting, otomasi, dan pengolahan data.
+        Saya senang mengubah proses manual yang membosankan menjadi
+        script yang berjalan otomatis dan efisien.
+      </p>
+      <p class="reveal d2">
+        Bagi saya, kode yang baik adalah kode yang mudah dibaca, mudah
+        diuji, dan mudah dirawat. Bukan yang paling pintar — tapi yang
+        paling jernih.
+      </p>
+
+      <ul class="about-list reveal d3">
+        <li>Menulis kode Python yang bersih &amp; mudah dibaca</li>
+        <li>Fokus pada solusi praktis, bukan yang rumit</li>
+        <li>Selalu belajar &amp; mengembangkan diri di ekosistem Python</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS — HANYA PYTHON -->
+<section id="skills">
+  <div class="skills-head">
+    <div class="section-tag reveal">Keahlian</div>
+    <h2 class="section-title reveal d1">
+      Yang saya <span class="grad-text">kuasai</span>
+    </h2>
+  </div>
+
+  <div class="skills-single reveal">
+    <div class="skill-card">
+      <div class="skill-icon">🐍</div>
+      <h3>Python</h3>
+      <p>
+        Bahasa pemrograman utama saya. Digunakan untuk scripting,
+        otomasi, pengolahan data, dan membangun backend sederhana.
+        Fokus pada kode yang bersih, mudah dibaca, dan mudah dirawat.
+      </p>
+      <div class="skill-tags">
+        <span class="tag">Scripting</span>
+        <span class="tag">Automasi</span>
+        <span class="tag">Data Processing</span>
+        <span class="tag">Backend</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-tag reveal">Produk Saya</div>
+  <h2 class="section-title reveal d1">
+    Produk <span class="grad-text">pilihan</span>
+  </h2>
+
+  <div class="projects-grid">
+
+    <!-- Proyek 1 — GANTI href KE LINK ASLI ANDA -->
+    <a href="https://github.com/Dra-Ganzz/Premium-Call" target="_blank" rel="noopener" class="project-card reveal">
+      <div class="project-thumb">
+        <img src="https://picsum.photos/seed/pythonauto/800/500" alt="Script Premium - Berbayar" loading="lazy" />
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="tag">Script</span>
+          <span class="tag">Premium</span>
+        </div>
+        <h3>List Script Premium</h3>
+        <p>Spam wa,Spam Sms,Spam Call,Fitur Osint,Fitur Phising,Fitur Tempmail</p>
+        <span class="project-link">
+          Lihat Produk
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <path d="M15 3h6v6"/><path d="M10 14 21 3"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Proyek 2 -->
+    <a href="https://github.com/Mybot-Call" target="_blank" rel="noopener" class="project-card reveal d1">
+      <div class="project-thumb">
+        <img src="https://picsum.photos/seed/pydata/800/500" alt="Python Data Processing" loading="lazy" />
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="tag">Script</span>
+          <span class="tag">MybotCall</span>
+        </div>
+        <h3>Spam Call - Telepon Gratis</h3>
+        <p>Gratis Spam Call - Telepon Tampilan Biasasaja:v</p>
+        <span class="project-link">
+          Lihat Produk
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <path d="M15 3h6v6"/><path d="M10 14 21 3"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+    <!-- Proyek 3 -->
+    <a href="https://wa.me/+62895404759092" target="_blank" rel="noopener" class="project-card reveal d2">
+      <div class="project-thumb">
+        <img src="https://picsum.photos/seed/pycli/800/500" alt="Python CLI Tool" loading="lazy" />
+      </div>
+      <div class="project-body">
+        <div class="project-tags">
+          <span class="tag">api Dump</span>
+          <span class="tag">Database sekolah</span>
+        </div>
+        <h3>Api Dump Database Sekolah</h3>
+        <p>Alat Api Dump Database sekolah Bisa dapat nama ortu nik murid alamat lahir dll</p>
+        <span class="project-link">
+          Lihat Produk
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <path d="M15 3h6v6"/><path d="M10 14 21 3"/>
+          </svg>
+        </span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-box reveal">
+    <div class="section-tag" style="justify-content:center;">Kontak</div>
+    <h2 class="section-title">Butuh Python engineer? <span class="grad-text">Mari bicara.</span></h2>
+    <p>
+      Saya terbuka untuk proyek scripting, otomasi, data processing,
+      atau sekadar diskusi teknis seputar Python. Kirim pesan
+    </p>
+
+    <div class="contact-actions">
+      <a href="Tidak Adaaa" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m4 6 8 6 8-6"/></svg>
+        Kirim Email
+      </a>
+      <a href="https://wa.me/+62895404759092" target="_blank" rel="noopener" class="btn btn-ghost">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-4-.9L3 21l1.9-4.9A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+
+    <a href="Tidak Ada" class="contact-mail">hello@vindragnz.dev</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2025 Vindra Ganzz. Dibuat dengan 🐍 &amp; ❤️</span>
+  <span><a href="#hero">Kembali ke atas ↑</a></span>
+</footer>
+
+<script>
+/* ===== 1. PRELOADER ===== */
+(function(){
+  const fill = document.getElementById('loaderFill');
+  const pct  = document.getElementById('loaderPct');
+  const pre  = document.getElementById('preloader');
+  let p = 0;
+
+  const tick = setInterval(() => {
+    p += Math.random() * 14 + 5;
+    if (p >= 100) { p = 100; clearInterval(tick); finish(); }
+    fill.style.width = p + '%';
+    pct.textContent = Math.floor(p) + '%';
+  }, 130);
+
+  function finish(){
+    setTimeout(() => {
+      pre.classList.add('done');
+      document.body.classList.remove('loading');
+      setTimeout(() => pre.remove(), 900);
+    }, 380);
+  }
+})();
+
+/* ===== 2. CURSOR ===== */
+(function(){
+  const cur = document.getElementById('cursor');
+  const dot = document.getElementById('cursorDot');
+  if (window.matchMedia('(pointer: coarse)').matches) return;
+
+  let mx = innerWidth / 2, my = innerHeight / 2;
+  let cx = mx, cy = my;
+
+  addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx - 2.5}px, ${my - 2.5}px)`;
+  });
+
+  (function loop(){
+    cx += (mx - cx) * 0.16;
+    cy += (my - cy) * 0.16;
+    cur.style.transform = `translate(${cx - 17}px, ${cy - 17}px)`;
+    requestAnimationFrame(loop);
+  })();
+
+  document.querySelectorAll('a, button, .skill-card, .project-card')
+    .forEach(el => {
+      el.addEventListener('mouseenter', () => cur.classList.add('grow'));
+      el.addEventListener('mouseleave', () => cur.classList.remove('grow'));
+    });
+})();
+
+/* ===== 3. NAVBAR + SCROLL PROGRESS ===== */
+(function(){
+  const nav  = document.getElementById('navbar');
+  const prog = document.getElementById('scroll-progress');
+
+  function onScroll(){
+    const y = scrollY;
+    nav.classList.toggle('scrolled', y > 40);
+    const h = document.documentElement.scrollHeight - innerHeight;
+    prog.style.width = (h > 0 ? (y / h) * 100 : 0) + '%';
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+/* ===== 4. MOBILE MENU ===== */
+(function(){
+  const burger = document.getElementById('burger');
+  const links  = document.getElementById('navLinks');
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('open');
+    links.classList.toggle('open');
+  });
+  links.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      burger.classList.remove('open');
+      links.classList.remove('open');
+    });
+  });
+})();
+
+/* ===== 5. TYPING HERO ===== */
+(function(){
+  const el = document.getElementById('typed');
+  const words = [
+    'script yang rapi',
+    'otomasi yang menghemat waktu',
+    'pengolahan data yang bersih',
+    'solusi Python sederhana'
+  ];
+  let w = 0, c = 0, deleting = false;
+
+  function type(){
+    const word = words[w];
+    el.textContent = word.slice(0, c);
+    if (!deleting && c < word.length) { c++; setTimeout(type, 70); }
+    else if (!deleting && c === word.length) { deleting = true; setTimeout(type, 1700); }
+    else if (deleting && c > 0) { c--; setTimeout(type, 35); }
+    else { deleting = false; w = (w + 1) % words.length; setTimeout(type, 260); }
+  }
+  setTimeout(type, 1200);
+})();
+
+/* ===== 6. REVEAL ===== */
+(function(){
+  const items = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('visible');
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  items.forEach(i => io.observe(i));
+})();
+
+/* ===== 7. ANIMASI KODE PYTHON (TYPEWRITER) ===== */
+(function(){
+  const out = document.getElementById('codeOutput');
+  const caret = document.getElementById('codeCaret');
+  if (!out) return;
+
+  // Setiap token: { t: class CSS, s: teks }
+  const tokens = [
+    { t:'cm', s:'# engineer.py' }, { s:'\n' },
+    { t:'kw', s:'class' }, { s:' ' }, { t:'fn', s:'Engineer' }, { s:':\n' },
+    { s:'    ' }, { t:'kw', s:'def' }, { s:' ' }, { t:'fn', s:'__init__' }, { s:'(self):\n' },
+    { s:'        self.skill = ' }, { t:'str', s:'"Python"' }, { s:'\n\n' },
+    { s:'    ' }, { t:'kw', s:'def' }, { s:' ' }, { t:'fn', s:'build' }, { s:'(self, problem):\n' },
+    { s:'        ' }, { t:'kw', s:'return' }, { s:' self.' }, { t:'fn', s:'solve' }, { s:'(problem)' }
+  ];
+
+  // Ratakan menjadi array karakter {c, cls}
+  const chars = [];
+  tokens.forEach(tok => {
+    for (const ch of tok.s) chars.push({ c: ch, cls: tok.t || null });
+  });
+
+  let i = 0;
+  let started = false;
+
+  function typeChar(){
+    if (i >= chars.length){
+      // Selesai → jeda lalu loop ulang
+      caret.style.animation = 'caretBlink 1s step-end infinite';
+      setTimeout(() => {
+        out.innerHTML = '';
+        i = 0;
+        typeChar();
+      }, 5000);
+      return;
+    }
+
+    const { c, cls } = chars[i];
+
+    if (c === '\n'){
+      out.appendChild(document.createTextNode('\n'));
+    } else if (cls){
+      const span = document.createElement('span');
+      span.className = cls;
+      span.textContent = c;
+      out.appendChild(span);
+    } else {
+      out.appendChild(document.createTextNode(c));
+    }
+    i++;
+
+    // Kecepatan: baris baru lebih lambat, spasi lebih cepat
+    const delay = c === '\n' ? 130 : c === ' ' ? 22 : 42;
+    setTimeout(typeChar, delay);
+  }
+
+  function start(){
+    if (started) return;
+    started = true;
+    // Sembunyikan caret dulu, munculkan saat mulai mengetik
+    caret.style.display = 'none';
+    setTimeout(() => {
+      caret.style.display = 'inline-block';
+      typeChar();
+    }, 500);
+  }
+
+  // Mulai saat blok kode masuk viewport
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting){
+        start();
+        io.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  io.observe(out.closest('.about-visual') || out);
+
+  // Fallback: kalau IO tidak jalan, tetap mulai setelah 2 detik
+  setTimeout(start, 2000);
+})();
+
+/* ===== 8. PARTIKEL ===== */
+(function(){
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  const mouse = { x: null, y: null };
+  const COUNT = () => Math.min(90, Math.floor(innerWidth / 16));
+
+  function resize(){
+    W = canvas.width  = innerWidth;
+    H = canvas.height = innerHeight;
+    init();
+  }
+  function init(){
+    particles = [];
+    const n = COUNT();
+    for (let i = 0; i < n; i++){
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        r: Math.random() * 1.6 + 0.6
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < particles.length; i++){
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 229, 255, .75)';
+      ctx.fill();
+
+      for (let j = i + 1; j < particles.length; j++){
+        const q = particles[j];
+        const dist = Math.hypot(p.x - q.x, p.y - q.y);
+        if (dist < 120){
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(168, 85, 247, ${(1 - dist / 120) * 0.28})`;
+          ctx.stroke();
+        }
+      }
+      if (mouse.x !== null){
+        const d = Math.hypot(p.x - mouse.x, p.y - mouse.y);
+        if (d < 160){
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.strokeStyle = `rgba(0, 229, 255, ${(1 - d / 160) * 0.4})`;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize', resize);
+  addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+  resize();
+  draw();
+})();
+
+/* ===== 9. SMOOTH SCROLL ===== */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id === '#' || id.length < 2) return;
+    const target = document.querySelector(id);
+    if (!target) return;
+    e.preventDefault();
+    const top = target.getBoundingClientRect().top + scrollY - 70;
+    scrollTo({ top, behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
